@@ -1,20 +1,27 @@
 ﻿using MediatR;
-using WebShop.Domain.Entities;
+using AutoMapper;
 using WebShop.Domain.Interfaces;
+using WebShop.Application.DTOs;
 
 namespace WebShop.Application.Features.Products.Queries;
 
-public class GetAllProductsHandler : IRequestHandler<GetAllProductsQuery, List<Product>>
+public class GetAllProductsHandler : IRequestHandler<GetAllProductsQuery, List<ProductDto>>
 {
     private readonly IProductRepository _repository;
+    private readonly IMapper _mapper;
 
-    public GetAllProductsHandler(IProductRepository repository)
+    public GetAllProductsHandler(IProductRepository repository, IMapper mapper)
     {
         _repository = repository;
+        _mapper = mapper;
     }
 
-    public async Task<List<Product>> Handle(GetAllProductsQuery request, CancellationToken cancellationToken)
+    public async Task<List<ProductDto>> Handle(GetAllProductsQuery request, CancellationToken cancellationToken)
     {
-        return await _repository.GetAllAsync();
+        // Hämtar entities från databasen
+        var products = await _repository.GetAllAsync();
+
+        // Mappar om till DTO
+        return _mapper.Map<List<ProductDto>>(products);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using MediatR;
-using WebShop.Domain.Entities;
+using WebShop.Application.DTOs;
 
 namespace WebShop.Application.Features.Products.Queries;
 
-public record GetAllProductsQuery() : IRequest<List<Product>>;
+// Returnerar DTO
+public record GetAllProductsQuery() : IRequest<List<ProductDto>>;

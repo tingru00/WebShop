@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using WebShop.Application.Features.Products.Commands;
+using WebShop.Application.Mapping;
 using WebShop.Domain.Entities;
 using WebShop.Domain.Interfaces;
 using WebShop.Infrastructure.Data;
@@ -10,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Services
 builder.Services.AddControllers();
+builder.Services.AddAutoMapper(typeof(ProductProfile).Assembly);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
