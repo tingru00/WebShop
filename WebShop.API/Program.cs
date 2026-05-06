@@ -2,6 +2,9 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using WebShop.Application.Features.Products.Commands;
 using WebShop.Application.Mapping;
+using FluentValidation;
+using WebShop.Application.Common.Behaviors;
+using WebShop.Application.Features.Products.Commands;
 using WebShop.Domain.Entities;
 using WebShop.Domain.Interfaces;
 using WebShop.Infrastructure.Data;
@@ -25,7 +28,28 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(CreateProductCommand).Assembly));
 
+builder.Services.AddValidatorsFromAssemblyContaining<CreateProductValidator>();
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
 var app = builder.Build();
+
+// Felhantering
+app.UseExceptionHandler(appError =>
+{
+    appError.Run(async context =>
+    {
+        context.Response.StatusCode = 400;
+        context.Response.ContentType = "application/json";
+
+        var contextFeature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
+
+        if (contextFeature?.Error is FluentValidation.ValidationException ex)
+        {
+            var errors = ex.Errors.Select(e => e.ErrorMessage);
+            await context.Response.WriteAsJsonAsync(errors);
+        }
+    });
+});
 
 app.UseSwagger();
 app.UseSwaggerUI();
