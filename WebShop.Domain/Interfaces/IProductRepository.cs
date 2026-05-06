@@ -13,6 +13,8 @@ public interface IProductRepository
 
     // Lägger till en ny produkt i databasen
     Task AddAsync(Product product);
+    // Uppdaterar en produkt
     Task UpdateAsync(Product product);
+    // Tar bort en produkt
     Task DeleteAsync(Product product);
 }

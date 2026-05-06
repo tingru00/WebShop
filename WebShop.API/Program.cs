@@ -17,6 +17,7 @@ builder.Services.AddControllers();
 builder.Services.AddAutoMapper(typeof(ProductProfile).Assembly);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 //Database connection string och DbContext registreras
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -32,6 +33,25 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreateProductValidator>();
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
 var app = builder.Build();
+
+// Seed data
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    // Skapar databasen om den inte finns 
+    db.Database.Migrate();
+
+    if (!db.Categories.Any())
+    {
+        db.Categories.AddRange(
+            new Category { Name = "Electronics" },
+            new Category { Name = "Clothing" },
+            new Category { Name = "Books" }
+        );
+
+        db.SaveChanges();
+    }
+}
 
 // Felhantering
 app.UseExceptionHandler(appError =>
