@@ -2,6 +2,9 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using WebShop.Application.Features.Products.Commands;
 using WebShop.Application.Mapping;
+using FluentValidation;
+using WebShop.Application.Common.Behaviors;
+using WebShop.Application.Features.Products.Commands;
 using WebShop.Domain.Entities;
 using WebShop.Domain.Interfaces;
 using WebShop.Infrastructure.Data;
@@ -14,6 +17,7 @@ builder.Services.AddControllers();
 builder.Services.AddAutoMapper(typeof(ProductProfile).Assembly);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 //Database connection string och DbContext registreras
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -25,7 +29,47 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddMediatR(cfg =>
     cfg.RegisterServicesFromAssembly(typeof(CreateProductCommand).Assembly));
 
+builder.Services.AddValidatorsFromAssemblyContaining<CreateProductValidator>();
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
 var app = builder.Build();
+
+// Seed data
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    // Skapar databasen om den inte finns 
+    db.Database.Migrate();
+
+    if (!db.Categories.Any())
+    {
+        db.Categories.AddRange(
+            new Category { Name = "Electronics" },
+            new Category { Name = "Clothing" },
+            new Category { Name = "Books" }
+        );
+
+        db.SaveChanges();
+    }
+}
+
+// Felhantering
+app.UseExceptionHandler(appError =>
+{
+    appError.Run(async context =>
+    {
+        context.Response.StatusCode = 400;
+        context.Response.ContentType = "application/json";
+
+        var contextFeature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
+
+        if (contextFeature?.Error is FluentValidation.ValidationException ex)
+        {
+            var errors = ex.Errors.Select(e => e.ErrorMessage);
+            await context.Response.WriteAsJsonAsync(errors);
+        }
+    });
+});
 
 app.UseSwagger();
 app.UseSwaggerUI();

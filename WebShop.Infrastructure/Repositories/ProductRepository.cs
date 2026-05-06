@@ -16,7 +16,7 @@ public class ProductRepository : IProductRepository
         _context = context;
     }
 
-    // Hämtar alla produkter, inkluderar category(relationen)
+    // Hämtar alla produkter, inkluderar category
     public async Task<List<Product>> GetAllAsync()
     {
         return await _context.Products
