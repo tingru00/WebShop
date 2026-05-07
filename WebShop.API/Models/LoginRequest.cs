@@ -1,0 +1,8 @@
+﻿namespace WebShop.API.Models;
+
+// Används när användare ska logga in
+public class LoginRequest
+{
+    public string Username { get; set; } = string.Empty; 
+    public string Password { get; set; } = string.Empty; 
+}

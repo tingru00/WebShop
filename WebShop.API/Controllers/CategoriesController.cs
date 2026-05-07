@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebShop.Application.Features.Categories.Commands;
 using WebShop.Application.Features.Categories.Queries;
@@ -19,6 +20,7 @@ public class CategoriesController : ControllerBase
     }
 
     // GET ALL CATEGORIES-endpoint
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -27,6 +29,7 @@ public class CategoriesController : ControllerBase
     }
 
     // CREATE CATEGORY-endpoint
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Create(CreateCategoryCommand command)
     {

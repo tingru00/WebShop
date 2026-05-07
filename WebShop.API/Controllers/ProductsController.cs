@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebShop.Application.Features.Products.Commands;
 using WebShop.Application.Features.Products.Queries;
@@ -17,6 +18,7 @@ public class ProductsController : ControllerBase
     }
 
     // CREATE PRODUCT-endpoint
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Create(CreateProductCommand command)
     {
@@ -26,6 +28,7 @@ public class ProductsController : ControllerBase
     }
 
     // GET ALL PRODUCTS-endpoint 
+    [AllowAnonymous]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -34,6 +37,7 @@ public class ProductsController : ControllerBase
     }
 
     // GET PRODUCT BY ID-endpoint
+    [AllowAnonymous]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
@@ -46,6 +50,7 @@ public class ProductsController : ControllerBase
     }
 
     // UPDATE PRODUCT-endpoint
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, UpdateProductCommand command)
     {
@@ -58,6 +63,7 @@ public class ProductsController : ControllerBase
     }
 
     // DELETE PRODUCT-endpoint
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {

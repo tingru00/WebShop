@@ -1,10 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using WebShop.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace WebShop.Infrastructure.Data;
 
-//Här defineras vilka tabeller som finns
-public class AppDbContext : DbContext
+// Vi ärver från IdentityDbContext för att få users o roles tabeller
+public class AppDbContext : IdentityDbContext<IdentityUser>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
@@ -12,10 +14,10 @@ public class AppDbContext : DbContext
     }
 
     // Dessa är tabeller i databasen
-    public DbSet<Product> Products => Set<Product>();
-    public DbSet<Category> Categories => Set<Category>();
+    public DbSet<Product> Products { get; set; }
+    public DbSet<Category> Categories { get; set; }
 
-    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
