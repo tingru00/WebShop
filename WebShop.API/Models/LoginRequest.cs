@@ -1,5 +1,4 @@
-﻿
-namespace WebShop.API.Models;
+﻿namespace WebShop.API.Models;
 
 // Används när användare ska logga in
 public class LoginRequest
